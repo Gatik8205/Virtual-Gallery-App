@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Upload | Virtual Gallery Upload</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="messageBox" class="message-box hidden"></div>
+  <div class="logout-container">
+    <button id="logoutBtn" class="logout-button">Logout</button>
+  </div>
+  <div class="upload-container">
+    <div class="card">
+      <h2>📤 Upload Your Image</h2>
+      <div class="upload-box" id="uploadArea">
+        <p>Drag & Drop or <span id="browseText">Click to Upload</span></p>
+        <input type="file" id="fileInput" hidden accept="image/*,video/*">
+      </div>
+      <button id="uploadBtn">Upload</button>
+      <p class="note"><a href="gallery.html">Go to Gallery</a></p>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+  <script src="auth.js"></script>
+  <script>
+    if (window.location.search.includes("loggedout=true")) {
+      showMessage("👋 Logged out successfully!", "success");
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+    if (!isLoggedIn()) {
+      window.location.href = "login.html";
+    }
+    const logoutBtn = document.getElementById("logoutBtn");
+    logoutBtn.addEventListener("click", logout);
+  </script>
+</body>
+</html>

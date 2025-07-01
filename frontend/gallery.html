@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gallery | Virtual Gallery</title>
+  <link rel="stylesheet" href="gallery.css" />
+</head>
+<body>
+  <div class="gallery-container">
+    <header>
+      <h1>Your Virtual Gallery</h1>
+      <button id="logoutBtn" onclick="logout()">Logout</button>
+    </header>
+
+    <div class="image-grid" id="gallery">
+      <!-- Images will be dynamically loaded here -->
+    </div>
+
+    <p class="note">Want to add more images? <a href="index.html">Go to Upload</a></p>
+  </div>
+
+  <div id="messageBox" class="message-box hidden"></div>
+
+  <script src="auth.js"></script>
+  <script src="gallery.js"></script>
+</body>
+</html>
