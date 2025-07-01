@@ -12,7 +12,7 @@ function isLoggedIn(){
 
 function logout(){
     localStorage.removeItem("token");
-    showMessage("LogOut Successfull","success");
+    showMessage("Loggedout Successfully","success");
     setTimeout(()=>{
       window.location.href="login.html?loggedout=true",1000
     });

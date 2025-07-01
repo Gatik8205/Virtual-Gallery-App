@@ -12,7 +12,7 @@ logoutBtn.addEventListener("click", () => {
 });
 
 // Fetch and display gallery items
-fetch("http://localhost:5000/images", {
+fetch("https://virtual-gallery-app.onrender.com/images", {
   headers: { "Authorization": getToken() }
 })
 .then(res => res.json())

@@ -29,46 +29,8 @@
 
   <div id="messageBox" class="message-box hidden"></div>
 
-  <script>
-  function showMessage(text, type = 'success') {
-    const box = document.getElementById('messageBox');
-    box.textContent = text;
-    box.className = `message-box ${type}`;
-    setTimeout(() => box.classList.add('hidden'), 3000);
-    box.classList.remove('hidden');
-  }
-  </script>
+  <script src="register.js"></script>
   <script src="auth.js"></script>
-  <script>
-    document.getElementById("registerForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const name = document.getElementById("name").value;
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-
-    const res = await fetch("http://localhost:5000/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password })
-    });
-
-    const data = await res.json();
-    if (data.message) {
-      showMessage("✅Registered Successfully","success");
-      window.location.href = "login.html";
-    } else {
-       showMessage(data.error || "Registration failed","error");
-    }
-  });
-
-    const togglePassword = document.getElementById('togglePassword');
-    const passwordInput = document.getElementById('password');
-
-    togglePassword.addEventListener('click', () => {
-      const type = passwordInput.type === 'password' ? 'text' : 'password';
-      passwordInput.type = type;
-      togglePassword.textContent = type === 'password' ? '👁️' : '🙈';
-    });
-  </script>
+  <script src="register.js"></script>
 </body>
 </html>

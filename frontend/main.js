@@ -53,7 +53,7 @@ function uploadImage(file) {
   const formData = new FormData();
   formData.append("image", file);
 
-  fetch("http://localhost:5000/upload", { 
+  fetch("https://virtual-gallery-app.onrender.com/upload", { 
     method: "POST",
     headers: { Authorization: getToken(), },
     body: formData,
