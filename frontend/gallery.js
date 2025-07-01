@@ -40,7 +40,7 @@ fetch("https://virtual-gallery-app.onrender.com/images", {
     deleteBtn.classList.add("delete-btn");
     deleteBtn.innerHTML = "🗑";
     deleteBtn.onclick = async () => {
-      const res = await fetch(`http://localhost:5000/image/${item.id}`, {
+      const res = await fetch(`https://virtual-gallery-app.onrender.com/image/${item.id}`, {
         method: "DELETE",
         headers: { "Authorization": getToken() }
       });
