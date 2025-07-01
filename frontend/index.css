@@ -106,6 +106,7 @@ button:hover{
   z-index: 9999;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   transition: opacity 0.3s ease;
+  word-wrap: break-word;
 }
 
 .message-box.success {
@@ -137,4 +138,19 @@ button:hover{
   font-weight: bold;
   cursor: pointer;
   z-index: 10;
+}
+@media (max-width: 600px) { 
+  .upload-box{
+    padding: 20px;
+    font-size: 14px;
+  }
+
+  .upload-box img{
+    max-width: 100%;
+    height: auto;
+  }
+
+  .note{
+    font-size: 14px;
+  }
 }

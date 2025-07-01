@@ -189,6 +189,7 @@ button:hover {
   z-index: 9999;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   transition: opacity 0.3s ease;
+  word-wrap: break-word;
 }
 
 .message-box.success {
@@ -208,9 +209,29 @@ button:hover {
   pointer-events: none;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .image-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+    padding: 10px;
+  }
+
+  .image-item img,
+  .image-item video{
+    height: 180px;
+  }
+
+  header{
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  h1{
+    font-size: 22px;
+  }
+
+  button{
+    width: 100%;
+    max-width: 200px;
   }
 }
