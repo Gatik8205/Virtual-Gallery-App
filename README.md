@@ -42,7 +42,9 @@ virtual-gallery-app/
 │   ├── login.html
 │   ├── register.html
 │   ├── gallery.html
-│   ├── main.js, auth.js, gallery.css
+│   ├── forgot-password.html
+│   ├──reset-password.html
+│   ├── main.js, auth.js, gallery.css, reset-password.js,forgot-password.js
 │
 ├── README.md
 └── .gitignore
@@ -60,6 +62,11 @@ JWT_SECRET=your_jwt_secret
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_key
 CLOUDINARY_API_SECRET=your_secret
+EMAIL=your-email@gmail.com
+EMAIL_PASSWORD=your-app-password
+EMAIL_PORT=587
+EMAIL_HOST=stmp.gmail.com 
+CLIENT_URL=https://your-app.vercel.app
 ```
 
 Use `.env.example` to share config template.
@@ -75,6 +82,7 @@ Use `.env.example` to share config template.
 - 🧑‍💻 Each User Sees Only Their Own Media
 - 💬 Toast Notifications for actions
 - 🌈 Animated Gradient UI
+- 🔐Forgot Password and Reset Password
 
 ---
 
