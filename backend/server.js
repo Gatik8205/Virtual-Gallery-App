@@ -25,6 +25,10 @@ app.get('/', (req, res) => {
    res.sendFile(path.join(__dirname, 'frontend', 'login.html'));
 });
 
+app.get('/reset-password.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'reset-password.html'));
+});
+
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ Connected to MongoDB'))
   .catch((err) => console.error('❌ MongoDB Error:', err));
