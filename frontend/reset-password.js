@@ -15,7 +15,7 @@ form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const newPassword = document.getElementById("newPassword").value;
 
-    const res = await fetch("https://virtual-gallery-app.onrender.com//reset-password", {
+    const res = await fetch("https://virtual-gallery-app.onrender.com/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, newPassword })
