@@ -62,7 +62,7 @@ mongoose.connect(process.env.MONGO_URI)
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
   port: parseInt(process.env.EMAIL_PORT),
-  secure: true,
+  secure: false,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
@@ -177,6 +177,7 @@ app.post('/forgot-password', async (req, res) => {
 
     res.json({ message: 'Reset link sent' });
   } catch (err) {
+    console.error("Reset Error",err);
     res.status(500).json({ error: 'Reset failed' });
   }
 });
@@ -203,7 +204,8 @@ app.post('/reset-password', async (req, res) => {
 });
 
 // 👁 Admin view
-app.get('/admin/uploads', adminMiddleware, async (req, res) => {
+app.get('/admin/uploads', 
+  Middleware, async (req, res) => {
   try {
     const uploads = await Image.find().populate('uploadedBy', 'name email');
     res.json(uploads);
