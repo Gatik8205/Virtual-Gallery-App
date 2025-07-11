@@ -204,8 +204,7 @@ app.post('/reset-password', async (req, res) => {
 });
 
 // 👁 Admin view
-app.get('/admin/uploads', 
-  Middleware, async (req, res) => {
+app.get('/admin/uploads', adminMiddleware, async (req, res) => {
   try {
     const uploads = await Image.find().populate('uploadedBy', 'name email');
     res.json(uploads);
