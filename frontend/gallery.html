@@ -207,7 +207,7 @@ function renderGrid() {
       <img src="${photo.url}" alt="${photo.title || ''}" loading="lazy" />
       <div class="photo-overlay">
         ${photo.title ? `<p class="photo-title">${photo.title}</p>` : ''}
-        <button class="delete-icon-btn" data-id="${photo._id}" data-title="${photo.title || 'This photo'}" title="Delete">
+        <button class="delete-icon-btn" data-id="${photo.id}" data-title="${photo.title || 'This photo'}" title="Delete">
           <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
         </button>
       </div>
@@ -218,7 +218,7 @@ function renderGrid() {
     })
     item.querySelector('.delete-icon-btn').addEventListener('click', e => {
       e.stopPropagation()
-      openDeleteModal(photo._id, photo.title || 'This photo')
+      openDeleteModal(photo.id, photo.title || 'This photo')
     })
     grid.appendChild(item)
   })
@@ -293,7 +293,7 @@ document.getElementById('uploadSubmit').addEventListener('click', async () => {
 
   try {
     const fd = new FormData()
-    fd.append('file', uploadFile)
+    fd.append('image', uploadFile)
     fd.append('title', document.getElementById('photoTitle').value || uploadFile.name)
     const newPhoto = await apiUploadPhoto(fd)
     photos.unshift(newPhoto)
@@ -337,7 +337,7 @@ document.getElementById('deleteConfirm').addEventListener('click', async () => {
   btn.textContent = 'Deleting…'
   try {
     await apiDeletePhoto(deleteTarget)
-    photos = photos.filter(p => p._id !== deleteTarget)
+    photos = photos.filter(p => p.id !== deleteTarget)
     renderGrid()
     closeDeleteModal()
     // Close lightbox if the deleted photo was open
@@ -385,7 +385,7 @@ document.getElementById('lbNext').addEventListener('click', () => { if (lbIndex 
 document.getElementById('lbDelete').addEventListener('click', () => {
   const photo = photos[lbIndex]
   closeLightbox()
-  openDeleteModal(photo._id, photo.title || 'This photo')
+  openDeleteModal(photo.id, photo.title || 'This photo')
 })
 
 // Keyboard nav

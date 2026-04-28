@@ -106,7 +106,7 @@
     try {
       const data = await apiLogin(email, password)
       localStorage.setItem('vg_token', data.token)
-      localStorage.setItem('vg_user',  JSON.stringify(data.user))
+      localStorage.setItem('vg_user', JSON.stringify({ name: data.name || email.split('@')[0] }))
       location.href = 'gallery.html'
     } catch (err) {
       showAlert(err.message)

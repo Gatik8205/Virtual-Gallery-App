@@ -1,30 +1,31 @@
 // ─────────────────────────────────────────────────────────
-//  api.js  –  All backend calls in one place
-//  Change API_BASE to your Render backend URL
+//  api.js  –  Matches server.js routes exactly
 // ─────────────────────────────────────────────────────────
 
-const API_BASE = 'https://virtual-gallery-app.onrender.com' // ← change this
+const API_BASE = 'https://virtual-gallery-app.onrender.com' // ← your Render URL
 
 function getToken() {
   return localStorage.getItem('vg_token')
 }
 
+// No "Bearer " prefix — server uses token directly
 function authHeaders(json = true) {
-  const h = { Authorization: `Bearer ${getToken()}` }
+  const h = { Authorization: getToken() }
   if (json) h['Content-Type'] = 'application/json'
   return h
 }
 
 async function handleRes(res) {
   const data = await res.json()
-  if (!res.ok) throw new Error(data.message || `Error ${res.status}`)
+  if (!res.ok) throw new Error(data.error || data.message || `Error ${res.status}`)
   return data
 }
 
 // ── Auth ──────────────────────────────────────────────────
 
 async function apiLogin(email, password) {
-  const res = await fetch(`${API_BASE}/api/auth/login`, {
+  // Returns: { token }
+  const res = await fetch(`${API_BASE}/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
@@ -33,7 +34,8 @@ async function apiLogin(email, password) {
 }
 
 async function apiRegister(name, email, password) {
-  const res = await fetch(`${API_BASE}/api/auth/register`, {
+  // Returns: { message }
+  const res = await fetch(`${API_BASE}/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name, email, password }),
@@ -42,7 +44,8 @@ async function apiRegister(name, email, password) {
 }
 
 async function apiForgotPassword(email) {
-  const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
+  // Returns: { message }
+  const res = await fetch(`${API_BASE}/forgot-password`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email }),
@@ -53,23 +56,27 @@ async function apiForgotPassword(email) {
 // ── Photos ────────────────────────────────────────────────
 
 async function apiGetPhotos() {
-  const res = await fetch(`${API_BASE}/api/photos`, {
+  // Returns: [{ url, id, uploadedBy }, ...]
+  const res = await fetch(`${API_BASE}/images`, {
     headers: authHeaders(),
   })
   return handleRes(res)
 }
 
 async function apiUploadPhoto(formData) {
-  const res = await fetch(`${API_BASE}/api/photos`, {
+  // formData must use field name 'image' (not 'file')
+  // Returns: { message, url }
+  const res = await fetch(`${API_BASE}/upload`, {
     method: 'POST',
-    headers: { Authorization: `Bearer ${getToken()}` },
+    headers: { Authorization: getToken() }, // no Content-Type for multipart
     body: formData,
   })
   return handleRes(res)
 }
 
 async function apiDeletePhoto(id) {
-  const res = await fetch(`${API_BASE}/api/photos/${id}`, {
+  // Returns: { message }
+  const res = await fetch(`${API_BASE}/image/${id}`, {
     method: 'DELETE',
     headers: authHeaders(),
   })

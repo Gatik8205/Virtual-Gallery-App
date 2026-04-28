@@ -78,7 +78,7 @@
 
 <script src="api.js"></script>
 <script>
-  if (localStorage.getItem('vg_token')) location.href = 'gallery.html'
+  if (localStorage.getItem('vg_token')) location.href = 'login.html'
 
   // Eye toggle
   const eyeBtn  = document.getElementById('eyeBtn')
@@ -116,9 +116,9 @@
     submitBtn.textContent = 'Creating account…'
     try {
       const data = await apiRegister(name, email, password)
-      localStorage.setItem('vg_token', data.token)
-      localStorage.setItem('vg_user',  JSON.stringify(data.user))
-      location.href = 'gallery.html'
+      // registered, redirect to login
+      // no token on register
+      location.href = 'login.html'
     } catch (err) {
       showAlert(err.message)
       submitBtn.disabled    = false
