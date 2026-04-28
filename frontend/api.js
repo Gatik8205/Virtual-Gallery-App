@@ -3,7 +3,7 @@
 //  Change API_BASE to your Render backend URL
 // ─────────────────────────────────────────────────────────
 
-const API_BASE = 'https://your-backend.onrender.com' // ← change this
+const API_BASE = 'https://virtual-gallery-app.onrender.com' // ← change this
 
 function getToken() {
   return localStorage.getItem('vg_token')
