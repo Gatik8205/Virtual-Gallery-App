@@ -2,27 +2,400 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Gallery | Virtual Gallery</title>
-  <link rel="stylesheet" href="gallery.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Gallery · Virtual Gallery</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="gallery-container">
-    <header>
-      <h1>Your Virtual Gallery</h1>
-      <button id="logoutBtn" onclick="logout()">Logout</button>
-    </header>
 
-    <div class="image-grid" id="gallery">
-      <!-- Images will be dynamically loaded here -->
+<!-- ── Navbar ── -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="gallery.html" class="navbar-brand">Virtual <em>Gallery</em></a>
+    <div class="navbar-right">
+      <span class="photo-count" id="photoCount"></span>
+      <button class="upload-btn" id="uploadBtn">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Upload
+      </button>
+      <div class="user-avatar" id="userAvatar"></div>
+      <button class="signout-btn" id="signoutBtn">Sign out</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ── Page header ── -->
+<div class="page-header fade-up">
+  <p class="page-eyebrow" id="userGreeting"></p>
+  <h1 class="page-title">Your Collection</h1>
+  <div class="page-rule"></div>
+</div>
+
+<!-- ── Gallery grid ── -->
+<div class="gallery-wrap">
+  <!-- Spinner -->
+  <div class="spinner-wrap" id="spinner">
+    <div class="spinner"></div>
+  </div>
+  <!-- Error -->
+  <div id="errorState" style="display:none; text-align:center; padding:4rem;">
+    <p style="color:var(--muted); margin-bottom:1rem;" id="errorMsg"></p>
+    <button onclick="loadPhotos()" style="color:var(--gold);background:none;border:none;cursor:pointer;font-size:0.875rem;">Try again</button>
+  </div>
+  <!-- Empty -->
+  <div class="empty-state" id="emptyState" style="display:none">
+    <p class="empty-title">Empty canvas</p>
+    <p class="empty-desc">Upload your first photo to begin your collection.</p>
+    <button class="empty-btn" id="emptyUploadBtn">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Upload a photo
+    </button>
+  </div>
+  <!-- Masonry grid -->
+  <div class="masonry" id="masonryGrid"></div>
+</div>
+
+
+<!-- ── Upload Modal ── -->
+<div class="modal-overlay hidden" id="uploadModal">
+  <div class="modal upload-modal scale-in">
+    <div class="modal-header">
+      <h3 class="modal-title">Upload Photo</h3>
+      <button class="modal-close" id="uploadClose">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
 
-    <p class="note">Want to add more images? <a href="index.html">Go to Upload</a></p>
+    <!-- Drop zone -->
+    <div class="dropzone" id="dropzone">
+      <div id="dropzoneDefault">
+        <div class="dropzone-icon">
+          <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <p class="dropzone-text">Drag & drop or click to upload</p>
+        <p class="dropzone-sub">PNG, JPG, WEBP up to 10MB</p>
+      </div>
+      <div class="file-preview" id="filePreview" style="display:none">
+        <img id="previewImg" src="" alt="Preview" />
+        <span class="file-name" id="fileName"></span>
+        <span class="file-change">Click to change</span>
+      </div>
+      <input type="file" id="fileInput" accept="image/*" style="display:none" />
+    </div>
+
+    <!-- Title -->
+    <div class="form-group">
+      <label class="form-label" for="photoTitle">
+        Title <span style="color:var(--border-lit);font-weight:300;text-transform:none;letter-spacing:0;">(optional)</span>
+      </label>
+      <input class="form-input" type="text" id="photoTitle" placeholder="Give your photo a name…" />
+    </div>
+
+    <div id="uploadAlert" class="alert alert-error" style="display:none"></div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" id="uploadCancel">Cancel</button>
+      <button class="btn-upload" id="uploadSubmit" disabled>Upload</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── Delete Modal ── -->
+<div class="modal-overlay hidden" id="deleteModal">
+  <div class="modal delete-modal scale-in">
+    <div class="delete-icon">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+    </div>
+    <h3 class="delete-title">Delete photo?</h3>
+    <p class="delete-desc"><strong id="deletePhotoName"></strong> will be permanently removed. This cannot be undone.</p>
+    <div class="delete-actions">
+      <button id="deleteCancel" style="background:transparent;border:1px solid var(--border);color:var(--text-2);transition:background 0.2s;" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background='transparent'">Cancel</button>
+      <button class="btn-danger" id="deleteConfirm">Delete</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── Lightbox ── -->
+<div class="lightbox hidden" id="lightbox">
+  <button class="lb-close" id="lbClose">
+    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+  <span class="lb-counter" id="lbCounter"></span>
+
+  <button class="lb-nav prev" id="lbPrev">
+    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>
+
+  <div class="lightbox-img-wrap">
+    <img id="lbImg" src="" alt="" />
+    <p class="lightbox-caption" id="lbCaption"></p>
   </div>
 
-  <div id="messageBox" class="message-box hidden"></div>
+  <button class="lb-nav next" id="lbNext">
+    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>
 
-  <script src="auth.js"></script>
-  <script src="gallery.js"></script>
+  <button class="lb-delete" id="lbDelete">
+    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+    Delete
+  </button>
+</div>
+
+
+<script src="api.js"></script>
+<script>
+// ── Auth guard ────────────────────────────────────────────
+const token = localStorage.getItem('vg_token')
+if (!token) location.href = 'login.html'
+const user = JSON.parse(localStorage.getItem('vg_user') || '{}')
+
+// Populate user info
+document.getElementById('userGreeting').textContent  = `Hello, ${user.name || 'there'} —`
+document.getElementById('userAvatar').textContent    = (user.name || 'U').charAt(0).toUpperCase()
+document.getElementById('signoutBtn').addEventListener('click', () => {
+  localStorage.removeItem('vg_token')
+  localStorage.removeItem('vg_user')
+  location.href = 'login.html'
+})
+
+// ── Photos state ──────────────────────────────────────────
+let photos   = []
+let lbIndex  = 0
+let deleteTarget = null
+
+// ── Load photos ───────────────────────────────────────────
+async function loadPhotos() {
+  document.getElementById('spinner').style.display     = ''
+  document.getElementById('errorState').style.display  = 'none'
+  document.getElementById('emptyState').style.display  = 'none'
+  document.getElementById('masonryGrid').innerHTML     = ''
+
+  try {
+    photos = await apiGetPhotos()
+    renderGrid()
+  } catch (err) {
+    if (err.message.includes('401')) { localStorage.clear(); location.href = 'login.html'; return }
+    document.getElementById('errorMsg').textContent     = err.message
+    document.getElementById('errorState').style.display = ''
+  } finally {
+    document.getElementById('spinner').style.display = 'none'
+  }
+}
+
+function updateCount() {
+  document.getElementById('photoCount').textContent =
+    `${photos.length} ${photos.length === 1 ? 'photo' : 'photos'}`
+}
+
+function renderGrid() {
+  updateCount()
+  const grid = document.getElementById('masonryGrid')
+  grid.innerHTML = ''
+
+  if (photos.length === 0) {
+    document.getElementById('emptyState').style.display = ''
+    return
+  }
+
+  photos.forEach((photo, i) => {
+    const item = document.createElement('div')
+    item.className  = 'masonry-item'
+    item.style.animationDelay = `${Math.min(i * 40, 320)}ms`
+    item.innerHTML = `
+      <img src="${photo.url}" alt="${photo.title || ''}" loading="lazy" />
+      <div class="photo-overlay">
+        ${photo.title ? `<p class="photo-title">${photo.title}</p>` : ''}
+        <button class="delete-icon-btn" data-id="${photo._id}" data-title="${photo.title || 'This photo'}" title="Delete">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
+      </div>
+    `
+    item.addEventListener('click', e => {
+      if (e.target.closest('.delete-icon-btn')) return
+      openLightbox(i)
+    })
+    item.querySelector('.delete-icon-btn').addEventListener('click', e => {
+      e.stopPropagation()
+      openDeleteModal(photo._id, photo.title || 'This photo')
+    })
+    grid.appendChild(item)
+  })
+}
+
+loadPhotos()
+
+
+// ── Upload modal ──────────────────────────────────────────
+let uploadFile = null
+
+function openUploadModal() {
+  uploadFile = null
+  document.getElementById('photoTitle').value        = ''
+  document.getElementById('fileInput').value         = ''
+  document.getElementById('uploadAlert').style.display = 'none'
+  document.getElementById('filePreview').style.display = 'none'
+  document.getElementById('dropzoneDefault').style.display = ''
+  document.getElementById('dropzone').classList.remove('has-file')
+  document.getElementById('uploadSubmit').disabled   = true
+  document.getElementById('uploadModal').classList.remove('hidden')
+}
+
+function closeUploadModal() {
+  document.getElementById('uploadModal').classList.add('hidden')
+}
+
+function setFilePreview(file) {
+  uploadFile = file
+  const reader = new FileReader()
+  reader.onload = e => {
+    document.getElementById('previewImg').src            = e.target.result
+    document.getElementById('fileName').textContent      = file.name
+    document.getElementById('filePreview').style.display = ''
+    document.getElementById('dropzoneDefault').style.display = 'none'
+    document.getElementById('dropzone').classList.add('has-file')
+    document.getElementById('uploadSubmit').disabled = false
+  }
+  reader.readAsDataURL(file)
+}
+
+document.getElementById('uploadBtn').addEventListener('click', openUploadModal)
+document.getElementById('emptyUploadBtn').addEventListener('click', openUploadModal)
+document.getElementById('uploadClose').addEventListener('click', closeUploadModal)
+document.getElementById('uploadCancel').addEventListener('click', closeUploadModal)
+
+// Drop zone click
+document.getElementById('dropzone').addEventListener('click', () => document.getElementById('fileInput').click())
+document.getElementById('fileInput').addEventListener('change', e => {
+  if (e.target.files[0]) setFilePreview(e.target.files[0])
+})
+
+// Drag and drop
+const dz = document.getElementById('dropzone')
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over') })
+dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'))
+dz.addEventListener('drop', e => {
+  e.preventDefault()
+  dz.classList.remove('drag-over')
+  const file = e.dataTransfer.files[0]
+  if (file && file.type.startsWith('image/')) setFilePreview(file)
+})
+
+// Submit upload
+document.getElementById('uploadSubmit').addEventListener('click', async () => {
+  if (!uploadFile) return
+  const alertEl = document.getElementById('uploadAlert')
+  alertEl.style.display = 'none'
+  const btn = document.getElementById('uploadSubmit')
+  btn.disabled    = true
+  btn.textContent = 'Uploading…'
+
+  try {
+    const fd = new FormData()
+    fd.append('file', uploadFile)
+    fd.append('title', document.getElementById('photoTitle').value || uploadFile.name)
+    const newPhoto = await apiUploadPhoto(fd)
+    photos.unshift(newPhoto)
+    renderGrid()
+    closeUploadModal()
+  } catch (err) {
+    alertEl.textContent   = err.message
+    alertEl.style.display = ''
+    btn.disabled          = false
+    btn.textContent       = 'Upload'
+  }
+})
+
+// Close modal on overlay click
+document.getElementById('uploadModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('uploadModal')) closeUploadModal()
+})
+
+
+// ── Delete modal ──────────────────────────────────────────
+function openDeleteModal(id, title) {
+  deleteTarget = id
+  document.getElementById('deletePhotoName').textContent = title
+  document.getElementById('deleteModal').classList.remove('hidden')
+}
+
+function closeDeleteModal() {
+  document.getElementById('deleteModal').classList.add('hidden')
+  deleteTarget = null
+}
+
+document.getElementById('deleteCancel').addEventListener('click', closeDeleteModal)
+document.getElementById('deleteModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('deleteModal')) closeDeleteModal()
+})
+
+document.getElementById('deleteConfirm').addEventListener('click', async () => {
+  if (!deleteTarget) return
+  const btn = document.getElementById('deleteConfirm')
+  btn.disabled    = true
+  btn.textContent = 'Deleting…'
+  try {
+    await apiDeletePhoto(deleteTarget)
+    photos = photos.filter(p => p._id !== deleteTarget)
+    renderGrid()
+    closeDeleteModal()
+    // Close lightbox if the deleted photo was open
+    if (!document.getElementById('lightbox').classList.contains('hidden')) {
+      closeLightbox()
+    }
+  } catch (err) {
+    alert(err.message)
+  } finally {
+    btn.disabled    = false
+    btn.textContent = 'Delete'
+  }
+})
+
+
+// ── Lightbox ──────────────────────────────────────────────
+function openLightbox(index) {
+  lbIndex = index
+  renderLightbox()
+  document.getElementById('lightbox').classList.remove('hidden')
+  document.body.style.overflow = 'hidden'
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.add('hidden')
+  document.body.style.overflow = ''
+}
+
+function renderLightbox() {
+  const photo = photos[lbIndex]
+  document.getElementById('lbImg').src        = photo.url
+  document.getElementById('lbImg').alt        = photo.title || ''
+  document.getElementById('lbCaption').textContent = photo.title || ''
+  document.getElementById('lbCounter').textContent = `${lbIndex + 1} / ${photos.length}`
+  document.getElementById('lbPrev').disabled  = lbIndex === 0
+  document.getElementById('lbNext').disabled  = lbIndex === photos.length - 1
+}
+
+document.getElementById('lbClose').addEventListener('click', closeLightbox)
+document.getElementById('lightbox').addEventListener('click', e => {
+  if (e.target === document.getElementById('lightbox')) closeLightbox()
+})
+document.getElementById('lbPrev').addEventListener('click', () => { if (lbIndex > 0) { lbIndex--; renderLightbox() } })
+document.getElementById('lbNext').addEventListener('click', () => { if (lbIndex < photos.length - 1) { lbIndex++; renderLightbox() } })
+document.getElementById('lbDelete').addEventListener('click', () => {
+  const photo = photos[lbIndex]
+  closeLightbox()
+  openDeleteModal(photo._id, photo.title || 'This photo')
+})
+
+// Keyboard nav
+document.addEventListener('keydown', e => {
+  if (document.getElementById('lightbox').classList.contains('hidden')) return
+  if (e.key === 'Escape')      closeLightbox()
+  if (e.key === 'ArrowLeft')   { if (lbIndex > 0) { lbIndex--; renderLightbox() } }
+  if (e.key === 'ArrowRight')  { if (lbIndex < photos.length - 1) { lbIndex++; renderLightbox() } }
+})
+</script>
+
 </body>
 </html>

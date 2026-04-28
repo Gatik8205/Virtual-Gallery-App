@@ -2,32 +2,118 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login | Virtual Gallery</title>
-  <link rel="stylesheet" href="login.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login · Virtual Gallery</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="messageBox" class="message-box hidden"></div>
 
-  <div class="login-container">
-    <div class="card">
-      <h2>🔐 Login to Virtual Gallery</h2>
-      <form id="loginForm">
-        <div class="input-wrapper">
-          <input type="email" id="email" placeholder="Email" required />
-        </div>
-        <div class="input-wrapper">
-          <input type="password" id="password" placeholder="Password" required />
-          <span id="togglePassword" class="eye-icon">👁️</span>
-        </div>
-        <button type="submit">Login</button>
-        <p class="note">Don't have an account? <a href="register.html">Register here</a></p>
-        <p class="note"><a href="forgot-password.html">Forgot Password?</a></p>
-      </form>
+<div class="auth-layout">
+
+  <!-- ── Decorative panel ── -->
+  <div class="auth-panel">
+    <div class="auth-panel-bg" style="background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1000&q=80')"></div>
+    <div class="auth-panel-overlay"></div>
+    <div class="auth-panel-content">
+      <p class="auth-panel-eyebrow">Your visual archive</p>
+      <h1 class="auth-panel-title">
+        Every image tells<br>
+        <em>a story.</em>
+      </h1>
+      <p class="auth-panel-desc">
+        A private gallery crafted for those who believe in the art of preservation.
+      </p>
     </div>
   </div>
 
-  <script src="auth.js"></script>
-  <script src="login.js"></script>
+  <!-- ── Form panel ── -->
+  <div class="auth-form-panel">
+    <div class="auth-form-inner fade-up">
+
+      <p class="auth-brand">Virtual Gallery</p>
+      <h2 class="auth-heading">Welcome back</h2>
+      <div class="auth-rule"></div>
+
+      <div id="alert" class="alert alert-error" style="display:none"></div>
+
+      <form id="loginForm" novalidate>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Email</label>
+          <input class="form-input" type="email" id="email" placeholder="you@example.com" required autocomplete="email" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <div class="input-wrap">
+            <input class="form-input" type="password" id="password" placeholder="••••••••" required autocomplete="current-password" />
+            <button type="button" class="eye-btn" id="eyeBtn" aria-label="Toggle password">
+              <svg id="eyeShow" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg id="eyeHide" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            </button>
+          </div>
+          <a href="forgot-password.html" class="forgot-link">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn-primary" id="submitBtn">Sign In</button>
+
+      </form>
+
+      <p class="auth-footer">
+        No account yet? <a href="register.html">Create one</a>
+      </p>
+
+    </div>
+  </div>
+</div>
+
+<script src="api.js"></script>
+<script>
+  // Redirect if already logged in
+  if (localStorage.getItem('vg_token')) location.href = 'gallery.html'
+
+  // Eye toggle
+  const eyeBtn  = document.getElementById('eyeBtn')
+  const passIn  = document.getElementById('password')
+  const eyeShow = document.getElementById('eyeShow')
+  const eyeHide = document.getElementById('eyeHide')
+  eyeBtn.addEventListener('click', () => {
+    const show = passIn.type === 'password'
+    passIn.type   = show ? 'text' : 'password'
+    eyeShow.style.display = show ? 'none'  : ''
+    eyeHide.style.display = show ? ''      : 'none'
+  })
+
+  // Form submit
+  const alert_el  = document.getElementById('alert')
+  const submitBtn = document.getElementById('submitBtn')
+
+  function showAlert(msg, type = 'error') {
+    alert_el.textContent = msg
+    alert_el.className   = `alert alert-${type}`
+    alert_el.style.display = ''
+  }
+
+  document.getElementById('loginForm').addEventListener('submit', async e => {
+    e.preventDefault()
+    alert_el.style.display = 'none'
+    const email    = document.getElementById('email').value.trim()
+    const password = document.getElementById('password').value
+    if (!email || !password) { showAlert('Please fill in all fields.'); return }
+
+    submitBtn.disabled    = true
+    submitBtn.textContent = 'Signing in…'
+    try {
+      const data = await apiLogin(email, password)
+      localStorage.setItem('vg_token', data.token)
+      localStorage.setItem('vg_user',  JSON.stringify(data.user))
+      location.href = 'gallery.html'
+    } catch (err) {
+      showAlert(err.message)
+      submitBtn.disabled    = false
+      submitBtn.textContent = 'Sign In'
+    }
+  })
+</script>
 </body>
 </html>

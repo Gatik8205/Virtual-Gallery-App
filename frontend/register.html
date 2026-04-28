@@ -2,35 +2,129 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login | Virtual Gallery</title>
-  <link rel="stylesheet" href="register.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register · Virtual Gallery</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="login-container">
-    <div class="card">
-      <h2>🔐 Register to Virtual Gallery</h2>
-      <form id="registerForm">
-         <div class="input-wrapper">
-          <input type="name" id="name" placeholder="Name" required />
-        </div>
-        <div class="input-wrapper">
-          <input type="email" id="email" placeholder="Email" required />
-        </div>
-        <div class="input-wrapper">
-          <input type="password" id="password" placeholder="Password" required />
-          <span id="togglePassword" class="eye-icon">👁️</span>
-        </div>
-        <button type="submit">Register</button>
-        <p class="note">Already have an account? <a href="login.html">Login here</a></p>
-      </form>
+
+<div class="auth-layout">
+
+  <!-- ── Decorative panel ── -->
+  <div class="auth-panel">
+    <div class="auth-panel-bg" style="background-image: url('https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=1000&q=80')"></div>
+    <div class="auth-panel-overlay"></div>
+    <div class="auth-panel-content">
+      <p class="auth-panel-eyebrow">Begin your collection</p>
+      <h1 class="auth-panel-title">
+        Curate what<br>
+        <em>matters most.</em>
+      </h1>
+      <p class="auth-panel-desc">
+        Join and start building your personal visual archive today.
+      </p>
     </div>
   </div>
 
-  <div id="messageBox" class="message-box hidden"></div>
+  <!-- ── Form panel ── -->
+  <div class="auth-form-panel">
+    <div class="auth-form-inner fade-up">
 
-  <script src="register.js"></script>
-  <script src="auth.js"></script>
-  <script src="register.js"></script>
+      <p class="auth-brand">Virtual Gallery</p>
+      <h2 class="auth-heading">Create account</h2>
+      <div class="auth-rule"></div>
+
+      <div id="alert" class="alert" style="display:none"></div>
+
+      <form id="registerForm" novalidate>
+
+        <div class="form-group">
+          <label class="form-label" for="name">Full Name</label>
+          <input class="form-input" type="text" id="name" placeholder="Your name" required autocomplete="name" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Email</label>
+          <input class="form-input" type="email" id="email" placeholder="you@example.com" required autocomplete="email" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <div class="input-wrap">
+            <input class="form-input" type="password" id="password" placeholder="Min. 6 characters" required />
+            <button type="button" class="eye-btn" id="eyeBtn" aria-label="Toggle password">
+              <svg id="eyeShow" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg id="eyeHide" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="confirm">Confirm Password</label>
+          <input class="form-input" type="password" id="confirm" placeholder="Re-enter password" required />
+        </div>
+
+        <button type="submit" class="btn-primary" id="submitBtn">Create Account</button>
+
+      </form>
+
+      <p class="auth-footer">
+        Already have an account? <a href="login.html">Sign in</a>
+      </p>
+
+    </div>
+  </div>
+</div>
+
+<script src="api.js"></script>
+<script>
+  if (localStorage.getItem('vg_token')) location.href = 'gallery.html'
+
+  // Eye toggle
+  const eyeBtn  = document.getElementById('eyeBtn')
+  const passIn  = document.getElementById('password')
+  const eyeShow = document.getElementById('eyeShow')
+  const eyeHide = document.getElementById('eyeHide')
+  eyeBtn.addEventListener('click', () => {
+    const show = passIn.type === 'password'
+    passIn.type = show ? 'text' : 'password'
+    eyeShow.style.display = show ? 'none' : ''
+    eyeHide.style.display = show ? ''     : 'none'
+  })
+
+  const alertEl   = document.getElementById('alert')
+  const submitBtn = document.getElementById('submitBtn')
+
+  function showAlert(msg, type = 'error') {
+    alertEl.textContent  = msg
+    alertEl.className    = `alert alert-${type}`
+    alertEl.style.display = ''
+  }
+
+  document.getElementById('registerForm').addEventListener('submit', async e => {
+    e.preventDefault()
+    alertEl.style.display = 'none'
+    const name     = document.getElementById('name').value.trim()
+    const email    = document.getElementById('email').value.trim()
+    const password = document.getElementById('password').value
+    const confirm  = document.getElementById('confirm').value
+    if (!name || !email || !password) { showAlert('Please fill in all fields.'); return }
+    if (password !== confirm)          { showAlert('Passwords do not match.'); return }
+    if (password.length < 6)           { showAlert('Password must be at least 6 characters.'); return }
+
+    submitBtn.disabled    = true
+    submitBtn.textContent = 'Creating account…'
+    try {
+      const data = await apiRegister(name, email, password)
+      localStorage.setItem('vg_token', data.token)
+      localStorage.setItem('vg_user',  JSON.stringify(data.user))
+      location.href = 'gallery.html'
+    } catch (err) {
+      showAlert(err.message)
+      submitBtn.disabled    = false
+      submitBtn.textContent = 'Create Account'
+    }
+  })
+</script>
 </body>
 </html>
